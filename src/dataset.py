@@ -4,20 +4,31 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 from pathlib import Path
-from emnist import extract_training_samples
+# from emnist import extract_training_samples
 import cv2
 import hashlib
 
 
 # ── EMNIST loader ─────────────────────────────────────────────────────────────
 def load_emnist():
-    digits  = extract_training_samples('digits')
-    idx_d   = np.argsort(digits[1])
-    sort_targets_d = digits[0][idx_d]
+    import torchvision
+    import tempfile
 
-    letters = extract_training_samples('letters')
-    idx_l   = np.argsort(letters[1])
-    sort_targets_l = letters[0][idx_l]
+    tmp = tempfile.mkdtemp()
+
+    digits = torchvision.datasets.EMNIST(
+        root=tmp, split="digits",
+        train=True, download=True)
+    idx_d          = np.argsort(digits.targets.numpy())
+    sort_targets_d = digits.data.numpy()[idx_d]   # (N, 28, 28) uint8
+    sort_targets_d = np.rot90(sort_targets_d, k=3, axes=(1,2))
+
+    letters = torchvision.datasets.EMNIST(
+        root=tmp, split="letters",
+        train=True, download=True)
+    idx_l          = np.argsort(letters.targets.numpy())
+    sort_targets_l = letters.data.numpy()[idx_l]  # (N, 28, 28) uint8
+    sort_targets_l = np.rot90(sort_targets_l, k=3, axes=(1,2))
 
     return sort_targets_d, sort_targets_l
 

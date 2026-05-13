@@ -10,25 +10,37 @@ import hashlib
 
 
 # ── EMNIST loader ─────────────────────────────────────────────────────────────
-def load_emnist():
-    import torchvision
-    import tempfile
+def load_emnist(zip_path: Path = None) -> tuple:
+    import zipfile, gzip, struct
 
-    tmp = tempfile.mkdtemp()
+    if zip_path is None:
+        # default cache location used by emnist package
+        zip_path = Path.home() / ".cache" / "emnist" / "emnist.zip"
 
-    digits = torchvision.datasets.EMNIST(
-        root=tmp, split="digits",
-        train=True, download=True)
-    idx_d          = np.argsort(digits.targets.numpy())
-    sort_targets_d = digits.data.numpy()[idx_d]   # (N, 28, 28) uint8
-    sort_targets_d = np.rot90(sort_targets_d, k=3, axes=(1,2))
+    def read_idx(data):
+        magic  = struct.unpack('>I', data[:4])[0]
+        n_dims = magic & 0xFF
+        dims   = struct.unpack('>' + 'I' * n_dims,
+                               data[4:4 + 4 * n_dims])
+        offset = 4 + 4 * n_dims
+        dtype  = {0x08: np.uint8}[(magic >> 8) & 0xFF]
+        return np.frombuffer(data[offset:], dtype=dtype).reshape(dims)
 
-    letters = torchvision.datasets.EMNIST(
-        root=tmp, split="letters",
-        train=True, download=True)
-    idx_l          = np.argsort(letters.targets.numpy())
-    sort_targets_l = letters.data.numpy()[idx_l]  # (N, 28, 28) uint8
-    sort_targets_l = np.rot90(sort_targets_l, k=3, axes=(1,2))
+    def load_split(split):
+        with zipfile.ZipFile(zip_path) as zf:
+            with zf.open(f"gzip/emnist-{split}-train-images-idx3-ubyte.gz") as f:
+                images = read_idx(gzip.decompress(f.read()))
+            with zf.open(f"gzip/emnist-{split}-train-labels-idx1-ubyte.gz") as f:
+                labels = read_idx(gzip.decompress(f.read()))
+        return images, labels
+
+    images_d, labels_d = load_split("digits")
+    idx_d          = np.argsort(labels_d)
+    sort_targets_d = images_d[idx_d]
+
+    images_l, labels_l = load_split("letters")
+    idx_l          = np.argsort(labels_l)
+    sort_targets_l = images_l[idx_l]
 
     return sort_targets_d, sort_targets_l
 
@@ -187,7 +199,8 @@ class SpeckleDataset(Dataset):
         self.n         = self.n_digits + self.n_letters
 
         # load EMNIST arrays once
-        self.sort_targets_d, self.sort_targets_l = load_emnist()
+        zip_path = Path(config.get("emnist_zip_path", Path.home() / ".cache" / "emnist" / "emnist.zip"))
+        self.sort_targets_d, self.sort_targets_l = load_emnist(zip_path)
         self.n_emnist_digits = len(self.sort_targets_d)   # boundary for index lookup
 
         # transforms

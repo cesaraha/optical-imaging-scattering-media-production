@@ -2,7 +2,8 @@
 data:
   raw_root: "E:/PhD/June2023/speckles_datasets/EMNIST"
   hdf5_root: "E:/PhD/June2023/speckles_datasets/EMNIST/hdf5_output"
-  index_file: "assets/list_sortedemnist.npy"
+  index_file: "assets/list_sorted_emnist.npy"
+  emnist_zip_path: null  # null = use default cache location
   subfolders: ["0_4", "5_9", "a_m", "n_z"]
   image_size_raw: 560
   image_size: 128          # crop/output size

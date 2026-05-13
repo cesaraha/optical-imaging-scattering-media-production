@@ -161,6 +161,7 @@ class SpeckleDataset(Dataset):
         image_size:         int   = 128,
         threshold:          int   = 153,
         expected_md5:       str   = None,
+        emnist_zip_path: Path | None = None,
     ):
         self.h5_path    = Path(h5_path)
         self.input_type = input_type
@@ -199,7 +200,7 @@ class SpeckleDataset(Dataset):
         self.n         = self.n_digits + self.n_letters
 
         # load EMNIST arrays once
-        zip_path = Path(config.get("emnist_zip_path", Path.home() / ".cache" / "emnist" / "emnist.zip"))
+        zip_path = emnist_zip_path or Path.home() / ".cache" / "emnist" / "emnist.zip"
         self.sort_targets_d, self.sort_targets_l = load_emnist(zip_path)
         self.n_emnist_digits = len(self.sort_targets_d)   # boundary for index lookup
 

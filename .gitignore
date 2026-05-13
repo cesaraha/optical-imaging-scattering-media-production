@@ -5,7 +5,6 @@
 *.npy
 !assets/index_digits.npy
 !assets/index_letters.npy
-!assets/list_sortedemnist.npy
 hdf5_output/
 data/
 

@@ -2,11 +2,7 @@
 *.h5
 *.tiff
 *.tif
-# block large data npy files but allow sacred index files
 *.npy
-!assets/index_digits.npy
-!assets/index_letters.npy
-!assets/list_sorted_emnist.npy
 hdf5_output/
 data/
 

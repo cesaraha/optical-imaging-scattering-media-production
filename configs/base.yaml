@@ -37,4 +37,4 @@ logging:
   log_interval: 10
 
 assets:
-  index_md5: null          # filled once, checked at every run start
+  index_md5: "0d7081fd9c8dd4b7a7f972080174460e"

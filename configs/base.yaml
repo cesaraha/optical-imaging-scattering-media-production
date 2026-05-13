@@ -1,0 +1,40 @@
+# configs/base.yaml
+data:
+  raw_root: "E:/PhD/June2023/speckles_datasets/EMNIST"
+  hdf5_root: "E:/PhD/June2023/speckles_datasets/EMNIST/hdf5_output"
+  index_file: "assets/list_sortedemnist.npy"
+  subfolders: ["0_4", "5_9", "a_m", "n_z"]
+  image_size_raw: 560
+  image_size: 128          # crop/output size
+  binarize_threshold: 153  # 0.6 * 255
+
+model:
+  version: "unet_v1"       # unet_v1 | unet_v2 | unet_v3 | unet_v4 | dense_v1
+  channels: [32, 64, 128, 256]
+  dropout: 0.25
+
+training:
+  input_type: "FM"
+  grit: 600
+  diffuser: 1
+  dataset_size: 10000
+  batch_size: 32
+  epochs: 100
+  optimizer: "Adam"
+  lr: 1.0e-3
+  scheduler: "cosine"
+  loss: "weighted_bce"
+  loss_alpha: 0.8
+  early_stopping_patience: 20
+  val_split: 0.1
+  num_workers: 2
+  seed: 42
+
+logging:
+  wandb_project: "speckle_reconstruction"
+  run_name: null           # auto-generated if null
+  checkpoint_dir: "checkpoints"
+  log_interval: 10
+
+assets:
+  index_md5: null          # filled once, checked at every run start

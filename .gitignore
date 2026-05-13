@@ -1,0 +1,23 @@
+# data — never committed
+*.h5
+*.tiff
+*.tif
+*.npy
+hdf5_output/
+data/
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# checkpoints — too large
+checkpoints/
+*.pt
+
+# notebooks output
+.ipynb_checkpoints/
+
+# wandb local files
+wandb/

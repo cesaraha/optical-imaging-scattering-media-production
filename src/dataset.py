@@ -256,6 +256,7 @@ def get_dataloaders(
     image_size:         int   = 128,
     threshold:          int   = 153,
     expected_md5:       str   = None,
+    emnist_zip_path:    Path | None = None,
 ) -> tuple:
 
     dataset = SpeckleDataset(
@@ -267,6 +268,7 @@ def get_dataloaders(
         image_size         = image_size,
         threshold          = threshold,
         expected_md5       = expected_md5,
+        emnist_zip_path    = emnist_zip_path,
     )
 
     n_val   = int(len(dataset) * val_split)

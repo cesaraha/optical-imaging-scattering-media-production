@@ -4,7 +4,6 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 from pathlib import Path
-# from emnist import extract_training_samples
 import cv2
 import hashlib
 

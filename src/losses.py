@@ -26,7 +26,7 @@ class WeightedBCELoss(nn.Module):
 
         return nn.functional.binary_cross_entropy_with_logits(
             pred, target,
-            pos_weight=torch.tensor(pos_weight, device=pred.device),
+            pos_weight=pos_weight.detach().clone().to(pred.device),
         )
 
 
@@ -86,7 +86,8 @@ def ssim_metric(pred: torch.Tensor, target: torch.Tensor,
 
 def _gaussian_kernel(size: int, sigma: float,
                      device, dtype) -> torch.Tensor:
-    coords  = torch.arange(size, device=device, dtype=dtype) - size // 2
+    coords  = torch.arange(size, device=device, dtype=torch.float32)  # always float32
+    coords  = coords - size // 2
     g       = torch.exp(-(coords ** 2) / (2 * sigma ** 2))
     g       = g / g.sum()
     kernel  = g[:, None] * g[None, :]
@@ -95,4 +96,5 @@ def _gaussian_kernel(size: int, sigma: float,
 
 def _conv(x: torch.Tensor, kernel: torch.Tensor) -> torch.Tensor:
     padding = kernel.shape[-1] // 2
-    return nn.functional.conv2d(x, kernel, padding=padding, groups=x.shape[1])
+    return nn.functional.conv2d(x.float(), kernel.float(),
+                                padding=padding, groups=x.shape[1])

@@ -2,7 +2,6 @@
 import time
 import torch
 import torch.nn as nn
-from torch.cuda.amp import GradScaler, autocast
 from pathlib import Path
 from src.losses import WeightedBCELoss, CombinedLoss
 from src.metrics import compute_all_metrics
@@ -65,7 +64,7 @@ def train_one_epoch(model, loader, optimizer, loss_fn,
         x, y = x.to(device), y.to(device)
         optimizer.zero_grad()
 
-        with autocast():
+        with torch.amp.autocast('cuda'):
             logits = model(x)
             loss   = loss_fn(logits, y)
 
@@ -87,7 +86,7 @@ def validate(model, loader, loss_fn, device) -> dict:
 
     for x, y in loader:
         x, y   = x.to(device), y.to(device)
-        with autocast():
+        with torch.amp.autocast('cuda'):
             logits = model(x)
             loss   = loss_fn(logits, y)
         total_loss += loss.item()
@@ -113,7 +112,7 @@ def train(model, train_loader, val_loader, config: dict,
     optimizer = build_optimizer(model, config)
     scheduler = build_scheduler(optimizer, config)
     loss_fn   = build_loss(config)
-    scaler    = GradScaler()
+    scaler    = torch.amp.GradScaler('cuda')
     ckpt      = CheckpointManager(checkpoint_dir, run_name)
 
     start_epoch  = 0
